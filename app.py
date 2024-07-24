@@ -10,13 +10,14 @@ import time
 # Initialize Firestore DB
 db = firestore.Client()
 
-def save_prediction(prediction, email, date):
+def save_prediction(prediction, email, date, checkAnswer):
     # Convert date to datetime
     date = datetime.datetime.combine(date, datetime.datetime.min.time())
     doc_ref = db.collection("predictions").add({
         "prediction": prediction,
         "email": email,
         "date": date,
+        "checkAnswer": checkAnswer,
         "notified": False,
         "result": None
     })
@@ -29,12 +30,15 @@ def get_prediction_count():
 st.title("Future Prediction App")
 
 prediction = st.text_input("Enter your prediction")
+# Add a radio button with options "Yes" and "No"
+checkAnswer = st.radio("Do you want me to try to check the answer?", ("Yes", "No"))
+
 email = st.text_input("Enter your email")
 date = st.date_input("When should we check this prediction?")
 
 if st.button("Submit Prediction"):
     if prediction and email and date:
-        save_prediction(prediction, email, date)
+        save_prediction(prediction, email, date, checkAnswer)
         notification_placeholder = st.empty()
         notification_placeholder.success("Prediction saved!")
         time.sleep(3)
