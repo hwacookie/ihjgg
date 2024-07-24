@@ -9,14 +9,16 @@ import time
 
 # Initialize Firestore DB
 db = firestore.Client()
+date_input=None
+time_input=None
 
-def save_prediction(prediction, email, date, checkAnswer):
+
+def save_prediction(prediction, email, checkAnswer, dateOfCheck):
     # Convert date to datetime
-    date = datetime.datetime.combine(date, datetime.datetime.min.time())
     doc_ref = db.collection("predictions").add({
         "prediction": prediction,
         "email": email,
-        "date": date,
+        "date": dateOfCheck,
         "checkAnswer": checkAnswer,
         "notified": False,
         "result": None
@@ -27,25 +29,45 @@ def get_prediction_count():
     count = len(list(predictions_ref.stream()))
     return count
 
-st.title("Future Prediction App")
+st.title("Ich sag's wie's ist:")
 
-prediction = st.text_input("Enter your prediction")
-# Add a radio button with options "Yes" and "No"
-checkAnswer = st.radio("Do you want me to try to check the answer?", ("Yes", "No"))
 
-email = st.text_input("Enter your email")
-date = st.date_input("When should we check this prediction?")
+def create_date_input():
 
-if st.button("Submit Prediction"):
-    if prediction and email and date:
-        save_prediction(prediction, email, date, checkAnswer)
+# Calculate default values
+    default_date = datetime.date.today() + datetime.timedelta(days=14)
+    default_time = (datetime.datetime.now() + datetime.timedelta(hours=1)).time()
+
+# Create columns for date and time input
+    col1, col2 = st.columns(2)
+
+    with col1:
+        date_input = st.date_input("Bis zum ", value=default_date)
+
+    with col2:
+        time_input = st.time_input("um ", value=default_time)
+    
+
+create_date_input()
+
+
+prediction = st.text_input("wird die Menschheit anerkennen, dass ...", placeholder="... der Mond aus grünem Käse besteht.")
+
+checkAnswer = st.radio("Soll ich deine Vorhersage überprüfen?", ("Versuch's doch!", "Schaffst Du eh nicht."))
+
+email = st.text_input("Wohin soll ich die Antwort schicken?", placeholder="irgend.jemand@irgend.wo")
+
+
+if st.button("So isses nämlich!"):
+    if prediction and email and date_input and time_input:
+        #save_prediction(prediction, email, checkAnswer, datetime.datetime.combine(date_input, time_input))
         notification_placeholder = st.empty()
-        notification_placeholder.success("Prediction saved!")
+        notification_placeholder.success("Ok, dann wollen wir mal sehen! Ich hab's mir gemerkt!")
         time.sleep(3)
         notification_placeholder.empty()
     else:
         notification_placeholder = st.empty()
-        notification_placeholder.error("Please fill all fields.")
+        notification_placeholder.error("Bitte alle Felder ausfüllen.")
         time.sleep(3)
         notification_placeholder.empty()
 
