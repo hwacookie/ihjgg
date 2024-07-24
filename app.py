@@ -9,8 +9,7 @@ import time
 
 # Initialize Firestore DB
 db = firestore.Client()
-date_input=None
-time_input=None
+
 
 
 def save_prediction(prediction, email, checkAnswer, dateOfCheck):
@@ -33,6 +32,8 @@ st.title("Ich sag's wie's ist:")
 
 
 def create_date_input():
+    global date_input
+    global time_input  
 
 # Calculate default values
     default_date = datetime.date.today() + datetime.timedelta(days=14)
@@ -59,6 +60,7 @@ email = st.text_input("Wohin soll ich die Antwort schicken?", placeholder="irgen
 
 
 if st.button("So isses nämlich!"):
+    print(date_input)
     if prediction and email and date_input and time_input:
         save_prediction(prediction, email, checkAnswer, datetime.datetime.combine(date_input, time_input))
         notification_placeholder = st.empty()
