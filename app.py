@@ -60,7 +60,7 @@ email = st.text_input("Wohin soll ich die Antwort schicken?", placeholder="irgen
 
 if st.button("So isses nämlich!"):
     if prediction and email and date_input and time_input:
-        #save_prediction(prediction, email, checkAnswer, datetime.datetime.combine(date_input, time_input))
+        save_prediction(prediction, email, checkAnswer, datetime.datetime.combine(date_input, time_input))
         notification_placeholder = st.empty()
         notification_placeholder.success("Ok, dann wollen wir mal sehen! Ich hab's mir gemerkt!")
         time.sleep(3)
