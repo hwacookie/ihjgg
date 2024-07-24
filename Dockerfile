@@ -14,7 +14,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Copy the service account key
-COPY ~/.keys/ihjgg-430319-b3a475019084.json /app/service-account-file.json
+COPY /home/hauke/.keys/ihjgg-430319-b3a475019084.json /app/service-account-file.json
 
 # Set the environment variable
 ENV GOOGLE_APPLICATION_CREDENTIALS="/app/service-account-file.json"
