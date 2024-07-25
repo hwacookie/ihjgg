@@ -1,80 +1,75 @@
 import streamlit as st
+import datetime
+import local_db as db
 from google.cloud import firestore
-import os
 import datetime
 import time
 
-# Set the environment variable for the service account key
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/to/your/service-account-file.json"
 
-# Initialize Firestore DB
-db = firestore.Client()
-
-
-
-def save_prediction(prediction, email, checkAnswer, dateOfCheck):
-    # Convert date to datetime
-    doc_ref = db.collection("predictions").add({
-        "prediction": prediction,
-        "email": email,
-        "date": dateOfCheck,
-        "checkAnswer": checkAnswer,
-        "notified": False,
-        "result": None
-    })
-
-def get_prediction_count():
-    predictions_ref = db.collection("predictions")
-    count = len(list(predictions_ref.stream()))
-    return count
-
-st.title("Ich sag's wie's ist:")
+# Initialize the session state for input fields
+if 'prediction' not in st.session_state:
+    st.session_state['prediction'] = ''
+if 'email' not in st.session_state:
+    st.session_state['email'] = ''
+if 'date' not in st.session_state:
+    st.session_state['date'] = datetime.date.today() + datetime.timedelta(days=14)
+if 'email_ok' not in st.session_state:
+    st.session_state['email_ok'] = False
 
 
-def create_date_input():
-    global date_input
-    global time_input  
+# Function to reset all input fields
+def reset_inputs():
+    st.session_state['prediction'] = None
+    st.session_state['email'] = None
+    st.session_state['date'] = datetime.date.today() + datetime.timedelta(days=14)
+    st.session_state['email_ok'] = False
+    st.experimental_rerun()  # Rerun the script to update the UI
 
-# Calculate default values
-    default_date = datetime.date.today() + datetime.timedelta(days=14)
-    default_time = (datetime.datetime.now() + datetime.timedelta(hours=1)).time()
+# Function to set the input fields programmatically
+def set_inputs(prediction, email, date, emailOk=False):
+    st.session_state['prediction'] = prediction
+    st.session_state['email'] = email
+    st.session_state['date'] = date
+    st.session_state['email_ok'] = emailOk
+    st.experimental_rerun()  # Rerun the script to update the UI
 
-# Create columns for date and time input
-    col1, col2 = st.columns(2)
+st.title("Streamlit Forms Example")
 
-    with col1:
-        date_input = st.date_input("Bis zum ", value=default_date)
+# Create a form
+#with st.form(key='prediction_form'):
+prediction = st.text_input("Ich hab ja schon immer gesagt, dass ...", value=st.session_state['prediction'], key='form_prediction')
+email = st.text_input("Wohin soll ich die Erinnerung schicken?", value=st.session_state['email'], key='form_email')
+date = st.date_input("Und wann?", value=st.session_state['date'], key='form_date')
+emailOk = st.checkbox("Ja, ich möchte per eMail an meine Vorhersage erinnert werden.", value=st.session_state['email_ok'], key='form_email_ok')
 
-    with col2:
-        time_input = st.time_input("um ", value=default_time)
-    
-
-create_date_input()
-
-
-prediction = st.text_input("wird die Menschheit anerkennen, dass ...", placeholder="... der Mond aus grünem Käse besteht.")
-
-checkAnswer = st.radio("Soll ich deine Vorhersage überprüfen?", ("Versuch's doch!", "Schaffst Du eh nicht."))
-
-email = st.text_input("Wohin soll ich die Antwort schicken?", placeholder="irgend.jemand@irgend.wo")
+# Submit button for the form
+submit_button = st.button(label='Submit')
 
 
-if st.button("So isses nämlich!"):
-    print(date_input)
-    if prediction and email and date_input and time_input:
-        save_prediction(prediction, email, checkAnswer, datetime.datetime.combine(date_input, time_input))
+# Handle form submission
+if submit_button:
+
+    if prediction and email and date and emailOk:
+        # st.session_state['prediction'] = st.session_state['form_prediction']
+        # st.session_state['email'] = st.session_state['form_email']
+        # st.session_state['date'] = st.session_state['form_date']
+        # st.session_state['email_ok'] = st.session_state['form_email_ok']
+        db.save_prediction(prediction, email, date)
         notification_placeholder = st.empty()
         notification_placeholder.success("Ok, dann wollen wir mal sehen! Ich hab's mir gemerkt!")
         time.sleep(3)
         notification_placeholder.empty()
+        reset_inputs()
     else:
         notification_placeholder = st.empty()
         notification_placeholder.error("Bitte alle Felder ausfüllen.")
         time.sleep(3)
         notification_placeholder.empty()
 
+
+
 # Display the total number of predictions
-prediction_count = get_prediction_count()
+prediction_count = db.get_prediction_count()
 st.sidebar.markdown(f"### Total Predictions: {prediction_count}")
 
 # Styling to place the prediction count at the bottom-left corner

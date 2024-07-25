@@ -1,10 +1,31 @@
 import base64
 import json
-from google.cloud import firestore
+
 import smtplib
+import os
+from google.cloud import firestore
 from email.mime.text import MIMEText
 
+
+
+
+# Initialize Firestore DB
 db = firestore.Client()
+
+
+# OpenAI API key
+api_key = os.getenv('OPENAI_API_KEY')
+if api_key is None:
+    api_key = read_api_key()
+        
+
+openai.api_key = api_key
+
+chatgpt_available = True
+if not verify_prediction_with_chatgpt("Does the earth revolve around the sun?"):
+    print("Error: Failed to verify prediction with ChatGPT")
+    chatgpt_available = False
+
 
 def check_predictions(request):
     # Query predictions that are due for checking
@@ -13,8 +34,8 @@ def check_predictions(request):
 
     for prediction in predictions:
         prediction_data = prediction.to_dict()
-        # Verify prediction result (this part is hypothetical and needs implementation)
-        result = verify_prediction(prediction_data["prediction"])
+        # Verify prediction result with ChatGPT
+        result = verify_prediction_with_chatgpt(prediction_data["prediction"])
         
         # Send email
         send_email(prediction_data["email"], prediction_data["prediction"], result)
@@ -27,9 +48,14 @@ def check_predictions(request):
 
     return "Predictions checked", 200
 
-def verify_prediction(prediction):
-    # Implement the actual verification logic here
-    return "true"  # Placeholder
+def verify_prediction_with_chatgpt(prediction):
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=f"Has the following prediction come true? {prediction}",
+        max_tokens=50
+    )
+    answer = response.choices[0].text.strip()
+    return "true" if "yes" in answer.lower() else "false"
 
 def send_email(to_email, prediction, result):
     msg = MIMEText(f"The prediction '{prediction}' is {result}.")
