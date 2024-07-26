@@ -3,21 +3,10 @@ import os
 
 
 from openai import OpenAI
+from keys import Keys
 
 
 
-# Read OpenAI API key from file
-def read_api_key():
-    """
-    Reads the OpenAI API key from a file.
-
-    This function opens a file located at ".keys/open-api-key.txt" and reads the API key from it.
-
-    Returns:
-    str: The API key as a string.
-    """
-    with open(".keys/openai-api-key.txt", 'r') as file:
-        return file.read().strip()
 
 
 def verify_prediction_with_chatgpt(prediction):
@@ -49,10 +38,9 @@ def verify_prediction_with_chatgpt(prediction):
         print(answer)
         return "true" if "yes" in answer.lower() else "false"
     except openai.RateLimitError:
-        return "error: rate limit exceeded"
+        raise ConnectionRefusedError('Open Ai: Rate limit exceeded')
     except openai.OpenAIError as e:
-        print(f"OpenAI API error: {e}")
-        return "error"
+        raise ConnectionRefusedError(f'Open Ai: {e}')
 
 
 
@@ -60,7 +48,7 @@ def verify_prediction_with_chatgpt(prediction):
 
 
 client = OpenAI(
-    api_key = read_api_key()
+    api_key = Keys.OPENAI_KEY()
 )
 
 
