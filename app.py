@@ -4,6 +4,7 @@ import local_db as db
 from google.cloud import firestore
 import datetime
 import time
+import tools
 
 
 # Initialize the session state for input fields
@@ -48,23 +49,19 @@ submit_button = st.button(label='Submit')
 
 # Handle form submission
 if submit_button:
-
-    if prediction and email and date and emailOk:
-        # st.session_state['prediction'] = st.session_state['form_prediction']
-        # st.session_state['email'] = st.session_state['form_email']
-        # st.session_state['date'] = st.session_state['form_date']
-        # st.session_state['email_ok'] = st.session_state['form_email_ok']
-        db.save_prediction(prediction, email, date)
-        notification_placeholder = st.empty()
-        notification_placeholder.success("Ok, dann wollen wir mal sehen! Ich hab's mir gemerkt!")
-        time.sleep(3)
-        notification_placeholder.empty()
-        reset_inputs()
+    if tools.checkEmailFormat(email):
+        if prediction and email and date and emailOk:
+            db.save_prediction(prediction, email, date)
+            notification_placeholder = st.empty()
+            notification_placeholder.success("Ok, dann wollen wir mal sehen! Ich hab's mir gemerkt!")
+            time.sleep(3)
+            notification_placeholder.empty()
+            reset_inputs()
+        else:
+            notification_placeholder = st.empty()
+            st.error("Bitte alle Felder ausfüllen.")
     else:
-        notification_placeholder = st.empty()
-        notification_placeholder.error("Bitte alle Felder ausfüllen.")
-        time.sleep(3)
-        notification_placeholder.empty()
+        st.error("Überprüfe deine eMail")
 
 
 
