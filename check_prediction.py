@@ -1,8 +1,11 @@
 import base64
 import json
-
+import datetime
 import smtplib
 import os
+import openai
+from keys import Keys
+from chatgpt import verify_prediction_with_chatgpt
 from google.cloud import firestore
 from email.mime.text import MIMEText
 
@@ -16,7 +19,7 @@ db = firestore.Client()
 # OpenAI API key
 api_key = os.getenv('OPENAI_API_KEY')
 if api_key is None:
-    api_key = read_api_key()
+    api_key = Keys.OPENAI_KEY
         
 
 openai.api_key = api_key
