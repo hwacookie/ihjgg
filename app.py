@@ -49,8 +49,9 @@ submit_button = st.button(label='Submit')
 
 # Handle form submission
 if submit_button:
-    if tools.checkEmailFormat(email):
-        if prediction and email and date and emailOk:
+
+    if prediction and email and date and emailOk:
+        if tools.checkEmailFormat(email):
             db.save_prediction(prediction, email, date)
             notification_placeholder = st.empty()
             notification_placeholder.success("Ok, dann wollen wir mal sehen! Ich hab's mir gemerkt!")
@@ -58,10 +59,10 @@ if submit_button:
             notification_placeholder.empty()
             reset_inputs()
         else:
-            notification_placeholder = st.empty()
-            st.error("Bitte alle Felder ausfüllen.")
+            st.error("Bitte überprüfe deine eMail.", icon='📧')
     else:
-        st.error("Überprüfe deine eMail")
+        notification_placeholder = st.empty()
+        st.error("Bitte alle Felder ausfüllen.")
 
 
 
