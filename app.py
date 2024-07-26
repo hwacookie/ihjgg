@@ -23,7 +23,7 @@ def reset_inputs():
     st.session_state['email'] = None
     st.session_state['date'] = datetime.date.today() + datetime.timedelta(days=14)
     st.session_state['email_ok'] = False
-    st.experimental_rerun()  # Rerun the script to update the UI
+    st.rerun()  # Rerun the script to update the UI
 
 # Function to set the input fields programmatically
 def set_inputs(prediction, email, date, emailOk=False):
@@ -31,7 +31,7 @@ def set_inputs(prediction, email, date, emailOk=False):
     st.session_state['email'] = email
     st.session_state['date'] = date
     st.session_state['email_ok'] = emailOk
-    st.experimental_rerun()  # Rerun the script to update the UI
+    st.rerun()  # Rerun the script to update the UI
 
 st.title("Streamlit Forms Example")
 
