@@ -36,16 +36,24 @@ def initDB():
 
 
 # Function to save a prediction into the database
-def save_prediction(prediction, email, date):
+def save_prediction(prediction, email, date, publicOk):
     conn = sqlite3.connect('predictions.db')
     cursor = conn.cursor()
     cursor.execute('''
-    INSERT INTO predictions (prediction, email, date, creationDate, notified, result, checkAnswer)
-    VALUES (?, ?, ?, ?, 0, NULL, ?)
-    ''', (prediction, email, date.isoformat(), datetime.datetime.now(), False))
+    INSERT INTO predictions (prediction, email, date, creationDate, notified, result, checkAnswer, public)
+    VALUES (?, ?, ?, ?, 0, NULL, ?, ?)
+    ''', (prediction, email, date.isoformat(), datetime.datetime.now(), False, publicOk))
     conn.commit()
     conn.close()
 
+def get_public_bets():
+    conn = sqlite3.connect('predictions.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT prediction FROM predictions WHERE public=1 ORDER BY creationDate DESC LIMIT 15')
+    bets = cursor.fetchall()
+    bets = [''.join(map(str, tup)) for tup in bets]
+    conn.close()
+    return bets
 
 
 # Function to get the total count of predictions
