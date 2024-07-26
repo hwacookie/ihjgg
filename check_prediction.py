@@ -8,6 +8,7 @@ from keys import Keys
 from chatgpt import verify_prediction_with_chatgpt
 from google.cloud import firestore
 from email.mime.text import MIMEText
+import tools
 
 
 
@@ -41,7 +42,7 @@ def check_predictions(request):
         result = verify_prediction_with_chatgpt(prediction_data["prediction"])
         
         # Send email
-        send_email(prediction_data["email"], prediction_data["prediction"], result)
+        send_email(tools.decrypt(prediction_data["email"]), prediction_data["prediction"], result)
         
         # Update Firestore document
         prediction.reference.update({

@@ -2,3 +2,4 @@ streamlit
 google-cloud-firestore
 mailjet_rest
 openai
+cryptography

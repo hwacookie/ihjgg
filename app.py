@@ -52,7 +52,7 @@ if submit_button:
 
     if prediction and email and date and emailOk:
         if tools.checkEmailFormat(email):
-            db.save_prediction(prediction, email, date)
+            db.save_prediction(prediction, tools.encrypt(email), date)
             notification_placeholder = st.empty()
             notification_placeholder.success("Ok, dann wollen wir mal sehen! Ich hab's mir gemerkt!")
             time.sleep(3)
